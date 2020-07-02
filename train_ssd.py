@@ -193,7 +193,7 @@ if __name__ == '__main__':
     train_transform = TrainAugmentation(config.image_size, config.image_mean, config.image_std)
     target_transform = MatchPrior(config.priors, config.center_variance,
                                   config.size_variance, 0.5)
-
+    print(config.image_size)
     test_transform = TestTransform(config.image_size, config.image_mean, config.image_std)
 
     logging.info("Prepare training datasets.")
@@ -326,6 +326,6 @@ if __name__ == '__main__':
                 f"Validation Regression Loss {val_regression_loss:.4f}, " +
                 f"Validation Classification Loss: {val_classification_loss:.4f}"
             )
-            model_path = os.path.join(args.checkpoint_folder, f"{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
+            model_path = os.path.join(args.checkpoint_folder, f"{args.net}-Vanilla-Epoch-{epoch}-Loss-{val_loss}.pth")
             net.save(model_path)
             logging.info(f"Saved model {model_path}")

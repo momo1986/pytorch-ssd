@@ -1,5 +1,7 @@
 from ..transforms.transforms import *
-
+import imgaug as ia
+from imgaug import augmenters as iaa
+import random
 
 class TrainAugmentation:
     def __init__(self, size, mean=0, std=1.0):
@@ -12,7 +14,7 @@ class TrainAugmentation:
         self.size = size
         self.augment = Compose([
             ConvertFromInts(),
-            PhotometricDistort(),
+            #PhotometricDistort(),
             Expand(self.mean),
             RandomSampleCrop(),
             RandomMirror(),
@@ -31,6 +33,7 @@ class TrainAugmentation:
             boxes: boundding boxes in the form of (x1, y1, x2, y2).
             labels: labels of boxes.
         """
+        #img = self._augment_image(img)
         return self.augment(img, boxes, labels)
 
 

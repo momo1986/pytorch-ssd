@@ -18,9 +18,9 @@ class VOCDataset:
         self.transform = transform
         self.target_transform = target_transform
         if is_test:
-            image_sets_file = self.root / "ImageSets/Main/test.txt"
+            image_sets_file = self.root / "val.txt"
         else:
-            image_sets_file = self.root / "ImageSets/Main/trainval.txt"
+            image_sets_file = self.root / "train.txt"
         self.ids = VOCDataset._read_image_ids(image_sets_file)
         self.keep_difficult = keep_difficult
 
@@ -34,9 +34,8 @@ class VOCDataset:
                     class_string += line.rstrip()
 
             # classes should be a comma separated list
-            
-            classes = class_string.split(',')
             # prepend BACKGROUND as first class
+            classes = class_string.split(',')
             classes.insert(0, 'BACKGROUND')
             classes  = [ elem.replace(" ", "") for elem in classes]
             self.class_names = tuple(classes)
@@ -90,35 +89,39 @@ class VOCDataset:
         return ids
 
     def _get_annotation(self, image_id):
+        image_id = image_id.split(".png")[0]
         annotation_file = self.root / f"Annotations/{image_id}.xml"
         objects = ET.parse(annotation_file).findall("object")
         boxes = []
         labels = []
         is_difficult = []
         for object in objects:
-            class_name = object.find('name').text.lower().strip()
+            class_name = object.find('name').text.strip()
             # we're only concerned with clases in our list
-            if class_name in self.class_dict:
-                bbox = object.find('bndbox')
+            #if class_name in self.class_dict:
+            bbox = object.find('bndbox')
 
-                # VOC dataset format follows Matlab, in which indexes start from 0
-                x1 = float(bbox.find('xmin').text) - 1
-                y1 = float(bbox.find('ymin').text) - 1
-                x2 = float(bbox.find('xmax').text) - 1
-                y2 = float(bbox.find('ymax').text) - 1
-                boxes.append([x1, y1, x2, y2])
+            # VOC dataset format follows Matlab, in which indexes start from 0
+            x1 = float(bbox.find('xmin').text) - 1
+            y1 = float(bbox.find('ymin').text) - 1
+            x2 = float(bbox.find('xmax').text) - 1
+            y2 = float(bbox.find('ymax').text) - 1
+            boxes.append([x1, y1, x2, y2])
 
-                labels.append(self.class_dict[class_name])
-                is_difficult_str = object.find('difficult').text
-                is_difficult.append(int(is_difficult_str) if is_difficult_str else 0)
+            labels.append(self.class_dict[class_name])
+            #is_difficult_str = object.find('difficult').text
+            is_difficult.append(0)
 
         return (np.array(boxes, dtype=np.float32),
                 np.array(labels, dtype=np.int64),
                 np.array(is_difficult, dtype=np.uint8))
 
     def _read_image(self, image_id):
-        image_file = self.root / f"JPEGImages/{image_id}.jpg"
+        image_file = self.root / f"Images/{image_id}"
         image = cv2.imread(str(image_file))
+        if image.shape[2] != 3:
+            print(image_file)
+            print("Stop")
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
 

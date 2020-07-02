@@ -12,6 +12,7 @@ import pathlib
 import numpy as np
 import logging
 import sys
+import os
 from vision.ssd.mobilenet_v2_ssd_lite import create_mobilenetv2_ssd_lite, create_mobilenetv2_ssd_lite_predictor
 
 
@@ -46,8 +47,7 @@ def group_annotation_by_class(dataset):
         for i, difficult in enumerate(is_difficult):
             class_index = int(classes[i])
             gt_box = gt_boxes[i]
-            if not difficult:
-                true_case_stat[class_index] = true_case_stat.get(class_index, 0) + 1
+            true_case_stat[class_index] = true_case_stat.get(class_index, 0) + 1
 
             if class_index not in all_gt_boxes:
                 all_gt_boxes[class_index] = {}
@@ -55,7 +55,7 @@ def group_annotation_by_class(dataset):
                 all_gt_boxes[class_index][image_id] = []
             all_gt_boxes[class_index][image_id].append(gt_box)
             if class_index not in all_difficult_cases:
-                all_difficult_cases[class_index]={}
+                all_difficult_cases[class_index] = {}
             if image_id not in all_difficult_cases[class_index]:
                 all_difficult_cases[class_index][image_id] = []
             all_difficult_cases[class_index][image_id].append(difficult)
@@ -123,8 +123,9 @@ if __name__ == '__main__':
     eval_path = pathlib.Path(args.eval_dir)
     eval_path.mkdir(exist_ok=True)
     timer = Timer()
-    class_names = [name.strip() for name in open(args.label_file).readlines()]
-
+    class_names = ["BACKGROUND", "Car", "Van", "Truck", "Pedestrian", "Person_sitting", "Cyclist", "Tram", "Misc"]
+    #class_names = [name.strip(',') for name in open(args.label_file).readlines()]
+    classes_num = 9
     if args.dataset_type == "voc":
         dataset = VOCDataset(args.dataset, is_test=True)
     elif args.dataset_type == 'open_images':
@@ -132,15 +133,15 @@ if __name__ == '__main__':
 
     true_case_stat, all_gb_boxes, all_difficult_cases = group_annotation_by_class(dataset)
     if args.net == 'vgg16-ssd':
-        net = create_vgg_ssd(len(class_names), is_test=True)
+        net = create_vgg_ssd(classes_num, is_test=True)
     elif args.net == 'mb1-ssd':
-        net = create_mobilenetv1_ssd(len(class_names), is_test=True)
+        net = create_mobilenetv1_ssd(classes_num, is_test=True)
     elif args.net == 'mb1-ssd-lite':
-        net = create_mobilenetv1_ssd_lite(len(class_names), is_test=True)
+        net = create_mobilenetv1_ssd_lite(classes_num, is_test=True)
     elif args.net == 'sq-ssd-lite':
-        net = create_squeezenet_ssd_lite(len(class_names), is_test=True)
+        net = create_squeezenet_ssd_lite(classes_num, is_test=True)
     elif args.net == 'mb2-ssd-lite':
-        net = create_mobilenetv2_ssd_lite(len(class_names), width_mult=args.mb2_width_mult, is_test=True)
+        net = create_mobilenetv2_ssd_lite(classes_num, width_mult=args.mb2_width_mult, is_test=True)
     else:
         logging.fatal("The net type is wrong. It should be one of vgg16-ssd, mb1-ssd and mb1-ssd-lite.")
         parser.print_help(sys.stderr)
@@ -167,13 +168,13 @@ if __name__ == '__main__':
 
     results = []
     for i in range(len(dataset)):
-        print("process image", i)
+       # print("process image", i)
         timer.start("Load Image")
         image = dataset.get_image(i)
-        print("Load Image: {:4f} seconds.".format(timer.end("Load Image")))
+        #print("Load Image: {:4f} seconds.".format(timer.end("Load Image")))
         timer.start("Predict")
         boxes, labels, probs = predictor.predict(image)
-        print("Prediction: {:4f} seconds.".format(timer.end("Predict")))
+        #print("Prediction: {:4f} seconds.".format(timer.end("Predict")))
         indexes = torch.ones(labels.size(0), 1, dtype=torch.float32) * i
         results.append(torch.cat([
             indexes.reshape(-1, 1),

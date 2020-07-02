@@ -1,3 +1,15 @@
+Declaration:
+This repo is forked from:
+https://github.com/qfgaohao/pytorch-ssd
+It is followed open-source software license.
+
+We use this "PyTorch" SSD in the backbone of MobileNet and VGG-16 with transfer learning on KITTI 2D Object Detection Task.
+
+For KITTI transfer VOC-Format data, please refers:
+https://github.com/maozezhong/CV_ToolBox
+
+Put it in the folder of kitti_train and kitti_val with sub-directories of Images, Annotations, labels and train.txt or val.txt for file-announcement.
+
 # Single Shot MultiBox Detector Implementation in Pytorch
 
 This repo implements [SSD (Single Shot MultiBox Detector)](https://arxiv.org/abs/1512.02325). The implementation is heavily influenced by the projects [ssd.pytorch](https://github.com/amdegroot/ssd.pytorch) and [Detectron](https://github.com/facebookresearch/Detectron).
@@ -151,7 +163,7 @@ The code to re-produce the model:
 
 ```bash
 wget -P models https://s3.amazonaws.com/amdegroot-models/vgg16_reducedfc.pth
-python train_ssd.py --datasets ~/data/VOC0712/VOC2007/ ~/data/VOC0712/VOC2012/ --validation_dataset ~/data/VOC0712/test/VOC2007/ --net vgg16-ssd --base_net models/vgg16_reducedfc.pth  --batch_size 24 --num_epochs 200 --scheduler "multi-step‚Äù ‚Äî-milestones ‚Äú120,160‚Äù
+python train_ssd.py --datasets ~/data/VOC0712/VOC2007/ ~/data/VOC0712/VOC2012/ --validation_dataset ~/data/VOC0712/test/VOC2007/ --net vgg16-ssd --base_net models/vgg16_reducedfc.pth  --batch_size 24 --num_epochs 200 --scheduler "multi-step‚Ä?‚Ä?milestones ‚Ä?20,160‚Ä?
 ```
 ## Training
 
@@ -277,3 +289,8 @@ python eval_ssd.py --net vgg16-ssd  --dataset ~/data/VOC0712/test/VOC2007/ --tra
 
 1. Resnet34 Based Model.
 2. BatchNorm Fusion.
+
+
+
+
+
